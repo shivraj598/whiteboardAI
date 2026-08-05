@@ -1,0 +1,6 @@
+# Cloudflare Pages configuration
+# Note: the build COMMAND (npm run build) is set in the Cloudflare Pages
+# dashboard under Settings -> Builds & deployments. This file supplies the
+# static asset output directory used by both git deploys and `wrangler pages deploy`.
+name = "whiteboardai"
+pages_build_output_dir = "./dist"
