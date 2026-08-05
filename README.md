@@ -1,16 +1,26 @@
-# React + Vite
+# ProjectFlow Whiteboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A browser-based infinite whiteboard for notes and drawing — an Excalidraw-style clone
+with extra features: editable **tables**, data-driven **charts** (bar / line / pie),
+and **image insertion**.
 
-Currently, two official plugins are available:
+**Features:** freehand + shapes (rectangle, ellipse, diamond, line, arrow), click-to-type
+text, stroke & fill colors, stroke width, font family & size, light/dark themes, grid,
+pan, zoom, undo/redo, delete/clear, PNG/SVG/JSON export, JSON import.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Built with **React 19** and **fabric.js 7**, bundled by **Vite 8**.
 
-## React Compiler
+## Getting started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+npm run dev       # dev server (HMR)
+npm run build     # production build -> dist/
+npm run preview   # preview production build
+npm run lint      # run oxlint
+```
 
-## Expanding the Oxlint configuration
+Open the printed local URL, pick a tool from the toolbar and start drawing.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+See `projectinformation.md` for the full feature list, project structure, and
+keyboard shortcuts.

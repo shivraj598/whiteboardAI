@@ -1,121 +1,170 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import Whiteboard from './components/Whiteboard'
+import Toolbar from './components/Toolbar'
+import TableModal from './components/TableModal'
+import ChartModal from './components/ChartModal'
 import './App.css'
 
+const DEFAULT_SETTINGS = {
+  tool: 'select',
+  strokeColor: '#1e1e1e',
+  fillColor: '#fef08a',
+  useFill: true,
+  strokeWidth: 3,
+  fontSize: 26,
+  fontFamily: 'sans-serif',
+  grid: true,
+}
+
+function loadState() {
+  try {
+    const theme = localStorage.getItem('whiteboard-theme') || 'light'
+    const settings = JSON.parse(
+      localStorage.getItem('whiteboard-settings') || 'null',
+    )
+    return {
+      theme,
+      settings: { ...DEFAULT_SETTINGS, ...(settings || {}) },
+    }
+  } catch {
+    return { theme: 'light', settings: DEFAULT_SETTINGS }
+  }
+}
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [state, setState] = useState(loadState)
+  const { theme, settings } = state
+  const [history, setHistory] = useState({ canUndo: false, canRedo: false })
+  const [zoom, setZoom] = useState(1)
+  const [tableModal, setTableModal] = useState(null)
+  const [chartModalOpen, setChartModalOpen] = useState(false)
+  const whiteboardRef = useRef(null)
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    localStorage.setItem('whiteboard-theme', theme)
+  }, [theme])
+
+  useEffect(() => {
+    localStorage.setItem('whiteboard-settings', JSON.stringify(settings))
+  }, [settings])
+
+  const patchSettings = useCallback((patch) => {
+    setState((prev) => ({
+      ...prev,
+      settings: { ...prev.settings, ...patch },
+    }))
+  }, [])
+
+  const toggleTheme = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      theme: prev.theme === 'dark' ? 'light' : 'dark',
+    }))
+  }, [])
+
+  const onToolChange = useCallback(
+    (tool) => patchSettings({ tool }),
+    [patchSettings],
+  )
+
+  const handleTableConfirm = useCallback(
+    ({ rows, cols, data }) => {
+      if (tableModal?.mode === 'edit') {
+        whiteboardRef.current?.updateTable(tableModal.meta.id, data)
+      } else {
+        whiteboardRef.current?.addTable({ rows, cols, data })
+      }
+      setTableModal(null)
+    },
+    [tableModal],
+  )
+
+  const handleChartConfirm = useCallback(
+    ({ type, data }) => {
+      whiteboardRef.current?.addChart({ type, data })
+      setChartModalOpen(false)
+    },
+    [],
+  )
+
+  const handleEditTable = useCallback((meta) => {
+    setTableModal({ mode: 'edit', meta })
+  }, [])
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app">
+      <Toolbar
+        settings={settings}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        onToolChange={onToolChange}
+        onStrokeColor={(c) => patchSettings({ strokeColor: c })}
+        onFillColor={(c) => patchSettings({ fillColor: c })}
+        onToggleFill={() => patchSettings({ useFill: !settings.useFill })}
+        onStrokeWidth={(v) => patchSettings({ strokeWidth: v })}
+        onFontSize={(v) => patchSettings({ fontSize: v })}
+        onFontFamily={(f) => patchSettings({ fontFamily: f })}
+        onToggleGrid={() => patchSettings({ grid: !settings.grid })}
+        history={history}
+        onUndo={() => whiteboardRef.current?.undo()}
+        onRedo={() => whiteboardRef.current?.redo()}
+        onDelete={() => whiteboardRef.current?.deleteSelected()}
+        onClear={() => whiteboardRef.current?.clearAll()}
+        zoom={zoom}
+        onZoomIn={() => whiteboardRef.current?.zoomIn()}
+        onZoomOut={() => whiteboardRef.current?.zoomOut()}
+        onZoomFit={() => whiteboardRef.current?.zoomToFit()}
+        onResetZoom={() => whiteboardRef.current?.resetZoom()}
+        onExport={(format) => whiteboardRef.current?.exportImage(format)}
+        onImportJSON={(text) => whiteboardRef.current?.importJSON(text)}
+        onImageUpload={(file) => whiteboardRef.current?.importImageFile(file)}
+        onOpenTable={() => setTableModal({ mode: 'create' })}
+        onOpenChart={() => setChartModalOpen(true)}
+        tableActive={tableModal !== null}
+        chartActive={chartModalOpen}
+      />
 
-      <div className="ticks"></div>
+      <main
+        className={`canvas-container${settings.grid ? ' grid' : ''}`}
+      >
+        <Whiteboard
+          ref={whiteboardRef}
+          settings={settings}
+          onHistoryChange={setHistory}
+          onEditTable={handleEditTable}
+          onToolChange={onToolChange}
+          onZoomChange={setZoom}
+        />
+      </main>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      <footer className="statusbar">
+        <span>
+          Tools: <b>V</b> select · <b>P</b> draw · <b>R/O/D/L/A</b> shapes ·{' '}
+          <b>T</b> text
+        </span>
+        <span>
+          <b>Ctrl+Z</b> undo · <b>Ctrl+Shift+Z</b> redo · <b>Ctrl+S</b> export ·{' '}
+          <b>Ctrl+scroll</b> zoom · double-click a table to edit its cells
+        </span>
+      </footer>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      {tableModal && (
+        <TableModal
+          mode={tableModal.mode}
+          meta={tableModal.meta}
+          onConfirm={handleTableConfirm}
+          onCancel={() => setTableModal(null)}
+        />
+      )}
+
+      {chartModalOpen && (
+        <ChartModal
+          onConfirm={handleChartConfirm}
+          onCancel={() => setChartModalOpen(false)}
+        />
+      )}
+    </div>
   )
 }
 
