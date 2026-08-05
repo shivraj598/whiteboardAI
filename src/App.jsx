@@ -138,16 +138,13 @@ function App() {
         />
       </main>
 
-      <footer className="statusbar">
+      <div className="hintbar">
         <span>
-          Tools: <b>V</b> select · <b>P</b> draw · <b>R/O/D/L/A</b> shapes ·{' '}
-          <b>T</b> text
+          <b>V</b> select · <b>P</b> draw · <b>R/O/D/L/A</b> shapes · <b>T</b> text ·{' '}
+          click any shape to move it
         </span>
-        <span>
-          <b>Ctrl+Z</b> undo · <b>Ctrl+Shift+Z</b> redo · <b>Ctrl+S</b> export ·{' '}
-          <b>Ctrl+scroll</b> zoom · double-click a table to edit its cells
-        </span>
-      </footer>
+        <span>Ctrl+Z undo · Ctrl+Shift+Z redo · Ctrl+S export · Ctrl+scroll zoom</span>
+      </div>
 
       {tableModal && (
         <TableModal

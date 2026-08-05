@@ -228,6 +228,17 @@ const Whiteboard = forwardRef(function Whiteboard(
       return
     }
     if (SHAPE_TOOLS.includes(tool)) {
+      // Excalidraw-style smart selection: if the pointer lands on an existing
+      // object, select and move it instead of drawing a new shape on top of it.
+      // Fabric already set up its drag transform for the target at this point,
+      // so we only need to NOT start a shape and make the selection visible.
+      const existing = opt.target
+      if (existing && existing.selectable !== false && !existing.isEditing) {
+        canvas.setActiveObject(existing)
+        canvas.defaultCursor = 'move'
+        canvas.requestRenderAll()
+        return
+      }
       const p = canvas.getScenePoint(opt.e)
       drawRef.current = { type: tool, startX: p.x, startY: p.y, obj: null }
       return
@@ -263,6 +274,12 @@ const Whiteboard = forwardRef(function Whiteboard(
       canvas.setViewportTransform(next)
       canvas.requestRenderAll()
       return
+    }
+    // Give move-affordance cursor when a shape tool hovers an existing object.
+    const tool = settingsRef.current.tool
+    if (!drawRef.current && SHAPE_TOOLS.includes(tool)) {
+      const over = opt.target && opt.target.selectable !== false
+      canvas.defaultCursor = over ? 'move' : 'crosshair'
     }
     const draw = drawRef.current
     if (!draw) return

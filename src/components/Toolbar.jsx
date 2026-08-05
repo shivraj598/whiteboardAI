@@ -26,11 +26,11 @@ import {
 } from '../lib/icons'
 import { FONT_OPTIONS } from '../lib/shapes'
 
-function ToolButton({ title, active, disabled, onClick, children }) {
+function ToolButton({ title, active, disabled, onClick, children, size }) {
   return (
     <button
       type="button"
-      className={`toolbar-btn${active ? ' active' : ''}`}
+      className={`toolbar-btn${active ? ' active' : ''}${size ? ` ${size}` : ''}`}
       title={title}
       aria-label={title}
       disabled={disabled}
@@ -100,7 +100,7 @@ export default function Toolbar({
   }, [])
 
   const tools = [
-    { id: 'select', icon: IconSelect, title: 'Select (V)' },
+    { id: 'select', icon: IconSelect, title: 'Select / move (V)' },
     { id: 'pan', icon: IconPan, title: 'Pan (H)' },
     { id: 'draw', icon: IconDraw, title: 'Freehand (P)' },
     { id: 'rectangle', icon: IconRect, title: 'Rectangle (R)' },
@@ -112,44 +112,44 @@ export default function Toolbar({
   ]
 
   return (
-    <div className="toolbar">
-      <div className="toolbar-group tools-group">
-        {tools.map((t) => {
-          const Icon = t.icon
-          return (
-            <ToolButton
-              key={t.id}
-              title={t.title}
-              active={tool === t.id}
-              onClick={() => onToolChange(t.id)}
-            >
-              <Icon />
-            </ToolButton>
-          )
-        })}
-        <ToolButton
-          title="Table"
-          active={tableActive}
-          onClick={onOpenTable}
-        >
-          <IconTable />
-        </ToolButton>
-        <ToolButton
-          title="Chart"
-          active={chartActive}
-          onClick={onOpenChart}
-        >
-          <IconChart />
-        </ToolButton>
-        <ToolButton
-          title="Insert image"
-          onClick={() => fileRef.current?.click()}
-        >
-          <IconImage />
-        </ToolButton>
+    <>
+      {/* Top-left: drawing tools */}
+      <div className="wb-topbar" role="toolbar" aria-label="Tools">
+        <div className="brand" title="ProjectFlow Whiteboard">
+          <span className="brand-dot" />
+          <span className="brand-name">Whiteboard</span>
+        </div>
+        <div className="wb-tools">
+          {tools.map((t) => {
+            const Icon = t.icon
+            return (
+              <ToolButton
+                key={t.id}
+                title={t.title}
+                active={tool === t.id}
+                onClick={() => onToolChange(t.id)}
+              >
+                <Icon />
+              </ToolButton>
+            )
+          })}
+        </div>
+        <span className="wb-divider" />
+        <div className="wb-tools">
+          <ToolButton title="Insert table" active={tableActive} onClick={onOpenTable}>
+            <IconTable />
+          </ToolButton>
+          <ToolButton title="Insert chart" active={chartActive} onClick={onOpenChart}>
+            <IconChart />
+          </ToolButton>
+          <ToolButton title="Insert image" onClick={() => fileRef.current?.click()}>
+            <IconImage />
+          </ToolButton>
+        </div>
       </div>
 
-      <div className="toolbar-group styles-group">
+      {/* Top-right: object styling */}
+      <div className="wb-props" role="toolbar" aria-label="Styles">
         <ColorField
           label="Stroke"
           value={settings.strokeColor}
@@ -162,10 +162,9 @@ export default function Toolbar({
           onChange={onFillColor}
           title="Fill color"
         />
-        <button
-          type="button"
-          className={`toolbar-btn${settings.useFill ? ' active' : ''}`}
-          title="Toggle fill (fills shapes with the fill color)"
+        <ToolButton
+          title="Toggle fill"
+          active={settings.useFill}
           onClick={onToggleFill}
         >
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
@@ -178,7 +177,7 @@ export default function Toolbar({
               strokeLinejoin="round"
             />
           </svg>
-        </button>
+        </ToolButton>
         <label className="size-slider-wrap" title="Stroke width">
           <span className="slider-label">Size</span>
           <input
@@ -220,91 +219,95 @@ export default function Toolbar({
         </label>
       </div>
 
-      <div className="toolbar-group">
-        <ToolButton title="Undo (Ctrl+Z)" disabled={!history.canUndo} onClick={onUndo}>
-          <IconUndo />
-        </ToolButton>
-        <ToolButton title="Redo (Ctrl+Shift+Z)" disabled={!history.canRedo} onClick={onRedo}>
-          <IconRedo />
-        </ToolButton>
-        <ToolButton title="Delete selection (Del)" onClick={onDelete}>
-          <IconDelete />
-        </ToolButton>
-        <ToolButton title="Clear canvas" onClick={onClear}>
-          <IconClear />
-        </ToolButton>
-      </div>
-
-      <div className="toolbar-group">
-        <ToolButton title="Zoom out (−)" onClick={onZoomOut}>
-          <IconZoomOut />
-        </ToolButton>
-        <button
-          type="button"
-          className="zoom-indicator"
-          title="Reset zoom to 100%"
-          onClick={onResetZoom}
-        >
-          {Math.round(zoom * 100)}%
-        </button>
-        <ToolButton title="Zoom in (+)" onClick={onZoomIn}>
-          <IconZoomIn />
-        </ToolButton>
-        <ToolButton title="Zoom to fit" onClick={onZoomFit}>
-          <IconFit />
-        </ToolButton>
-      </div>
-
-      <div className="toolbar-group">
-        <div className="menu">
+      {/* Right rail: history, zoom, export, view toggles */}
+      <div className="wb-rail" role="toolbar" aria-label="Actions">
+        <div className="rail-group">
+          <ToolButton title="Undo (Ctrl+Z)" disabled={!history.canUndo} onClick={onUndo}>
+            <IconUndo />
+          </ToolButton>
+          <ToolButton
+            title="Redo (Ctrl+Shift+Z)"
+            disabled={!history.canRedo}
+            onClick={onRedo}
+          >
+            <IconRedo />
+          </ToolButton>
+          <ToolButton title="Delete selection (Del)" onClick={onDelete}>
+            <IconDelete />
+          </ToolButton>
+          <ToolButton title="Clear canvas" onClick={onClear}>
+            <IconClear />
+          </ToolButton>
+        </div>
+        <div className="rail-group rail-zoom">
+          <ToolButton title="Zoom out (−)" onClick={onZoomOut}>
+            <IconZoomOut />
+          </ToolButton>
           <button
             type="button"
-            className="menu-btn"
-            title="Export"
-            onClick={(e) => {
-              e.stopPropagation()
-              setMenuOpen((o) => !o)
-            }}
+            className="zoom-indicator"
+            title="Reset zoom to 100%"
+            onClick={onResetZoom}
           >
-            <IconDownload />
-            <span>Export</span>
+            {Math.round(zoom * 100)}%
           </button>
-          {menuOpen && (
-            <div className="menu-items" onClick={(e) => e.stopPropagation()}>
-              <button type="button" onClick={() => onExport('png')}>
-                Export PNG
-              </button>
-              <button type="button" onClick={() => onExport('svg')}>
-                Export SVG
-              </button>
-              <button type="button" onClick={() => onExport('json')}>
-                Export JSON
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMenuOpen(false)
-                  jsonRef.current?.click()
-                }}
-              >
-                Import JSON
-              </button>
-            </div>
-          )}
+          <ToolButton title="Zoom in (+)" onClick={onZoomIn}>
+            <IconZoomIn />
+          </ToolButton>
+          <ToolButton title="Zoom to fit" onClick={onZoomFit}>
+            <IconFit />
+          </ToolButton>
         </div>
-        <ToolButton
-          title={settings.grid ? 'Hide grid' : 'Show grid'}
-          active={settings.grid}
-          onClick={onToggleGrid}
-        >
-          <IconGrid />
-        </ToolButton>
-        <ToolButton
-          title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
-          onClick={onToggleTheme}
-        >
-          {theme === 'dark' ? <IconSun /> : <IconMoon />}
-        </ToolButton>
+        <div className="rail-group">
+          <div className="menu">
+            <button
+              type="button"
+              className="menu-btn"
+              title="Export"
+              onClick={(e) => {
+                e.stopPropagation()
+                setMenuOpen((o) => !o)
+              }}
+            >
+              <IconDownload />
+            </button>
+            {menuOpen && (
+              <div className="menu-items" onClick={(e) => e.stopPropagation()}>
+                <button type="button" onClick={() => onExport('png')}>
+                  Export PNG
+                </button>
+                <button type="button" onClick={() => onExport('svg')}>
+                  Export SVG
+                </button>
+                <button type="button" onClick={() => onExport('json')}>
+                  Export JSON
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false)
+                    jsonRef.current?.click()
+                  }}
+                >
+                  Import JSON
+                </button>
+              </div>
+            )}
+          </div>
+          <ToolButton
+            title={settings.grid ? 'Hide grid' : 'Show grid'}
+            active={settings.grid}
+            onClick={onToggleGrid}
+          >
+            <IconGrid />
+          </ToolButton>
+          <ToolButton
+            title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            onClick={onToggleTheme}
+          >
+            {theme === 'dark' ? <IconSun /> : <IconMoon />}
+          </ToolButton>
+        </div>
       </div>
 
       <input
@@ -335,6 +338,6 @@ export default function Toolbar({
           e.target.value = ''
         }}
       />
-    </div>
+    </>
   )
 }
