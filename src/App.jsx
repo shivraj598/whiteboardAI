@@ -3,16 +3,17 @@ import Whiteboard from './components/Whiteboard'
 import Toolbar from './components/Toolbar'
 import TableModal from './components/TableModal'
 import ChartModal from './components/ChartModal'
+import { HANDWRITING_FONT } from './lib/shapes'
 import './App.css'
 
 const DEFAULT_SETTINGS = {
   tool: 'select',
   strokeColor: '#1e1e1e',
   fillColor: '#fef08a',
-  useFill: true,
+  useFill: false,
   strokeWidth: 3,
   fontSize: 26,
-  fontFamily: 'sans-serif',
+  fontFamily: HANDWRITING_FONT,
   grid: true,
 }
 

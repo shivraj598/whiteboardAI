@@ -163,7 +163,7 @@ export default function Toolbar({
           title="Fill color"
         />
         <ToolButton
-          title="Toggle fill"
+          title="Fill selected shapes with the fill color"
           active={settings.useFill}
           onClick={onToggleFill}
         >
@@ -177,6 +177,7 @@ export default function Toolbar({
               strokeLinejoin="round"
             />
           </svg>
+          <span className="btn-label">Fill</span>
         </ToolButton>
         <label className="size-slider-wrap" title="Stroke width">
           <span className="slider-label">Size</span>

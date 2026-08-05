@@ -149,6 +149,12 @@
   stroke-linejoin: round;
 }
 
+.btn-label {
+  font-size: 12px;
+  font-weight: 600;
+  padding-right: 2px;
+}
+
 /* Color pickers */
 .color-field {
   display: inline-flex;

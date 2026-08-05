@@ -60,6 +60,8 @@ const Whiteboard = forwardRef(function Whiteboard(
           stroke,
           strokeWidth,
           strokeLineJoin: 'round',
+          originX: 'left',
+          originY: 'top',
           objectCaching: false,
         })
       case 'ellipse':
@@ -71,6 +73,8 @@ const Whiteboard = forwardRef(function Whiteboard(
           fill,
           stroke,
           strokeWidth,
+          originX: 'left',
+          originY: 'top',
           objectCaching: false,
         })
       case 'diamond':
@@ -202,6 +206,8 @@ const Whiteboard = forwardRef(function Whiteboard(
       fill: s.strokeColor,
       editable: true,
       padding: 6,
+      originX: 'left',
+      originY: 'top',
     })
     canvas.add(text)
     canvas.setActiveObject(text)
@@ -441,6 +447,8 @@ const Whiteboard = forwardRef(function Whiteboard(
         img.set({
           left: center.x - (img.width * scale) / 2,
           top: center.y - (img.height * scale) / 2,
+          originX: 'left',
+          originY: 'top',
         })
         canvas.add(img)
         canvas.setActiveObject(img)

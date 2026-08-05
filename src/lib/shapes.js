@@ -1,8 +1,11 @@
 import { Rect, Polygon, Path, IText, Text, Group, Line, Circle } from 'fabric'
 
+export const HANDWRITING_FONT =
+  '"Patrick Hand", "Comic Sans MS", "Segoe Print", cursive'
+
 export const FONT_OPTIONS = [
   { label: 'Default', value: 'sans-serif' },
-  { label: 'Handwriting', value: '"Comic Sans MS", "Segoe Print", sans-serif' },
+  { label: 'Handwritten', value: HANDWRITING_FONT },
   { label: 'Monospace', value: '"Courier New", monospace' },
   { label: 'Serif', value: 'Georgia, "Times New Roman", serif' },
   { label: 'Heavy', value: 'Impact, "Arial Black", sans-serif' },
@@ -58,6 +61,8 @@ export function makeText(str, x, y, { fill, fontSize, fontFamily }) {
     fontFamily,
     editable: true,
     padding: 8,
+    originX: 'left',
+    originY: 'top',
   })
 }
 
